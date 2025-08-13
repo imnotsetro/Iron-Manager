@@ -11,12 +11,12 @@ class MonthlyStatsModel(QSqlQueryModel):
     def refresh(self):
         sql = """
         SELECT
-            mes_pagado AS Mes,
-            SUM(monto) AS 'Total Recaudado'
-        FROM pagos
-        WHERE anio_pagado = ?
-        GROUP BY mes_pagado
-        ORDER BY mes_pagado
+            month AS Mes,
+            SUM(amount) AS 'Total Recaudado'
+        FROM payments
+        WHERE year = ?
+        GROUP BY month
+        ORDER BY month
         """
         db = QSqlDatabase.database()
         q = QSqlQuery(db)
@@ -64,7 +64,7 @@ class StatisticsWindow(QWidget):
         layout.addWidget(self.table)
 
     def load_years(self):
-        sql = "SELECT DISTINCT anio_pagado FROM pagos ORDER BY anio_pagado DESC"
+        sql = "SELECT DISTINCT year FROM payments ORDER BY year DESC"
         q = QSqlQuery(self.db)
         q.exec(sql)
         years = []

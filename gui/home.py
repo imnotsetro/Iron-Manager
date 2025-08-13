@@ -66,11 +66,11 @@ class PagosViewer(QWidget):
 
         self.statistics_window = None
 
-        filter_layout.addWidget(QLabel("Cliente:"))
+        filter_layout.addWidget(QLabel("Cliente"))
         filter_layout.addWidget(self.search_input)
-        filter_layout.addWidget(QLabel("Mes:"))
+        filter_layout.addWidget(QLabel("Mes"))
         filter_layout.addWidget(self.month_combo)
-        filter_layout.addWidget(QLabel("Año:"))
+        filter_layout.addWidget(QLabel("Año"))
         filter_layout.addWidget(self.year_combo)
         filter_layout.addWidget(self.add_payment_button)
         filter_layout.addWidget(self.edit_payment_button)
@@ -101,7 +101,7 @@ class PagosViewer(QWidget):
         if not self.db.isOpen():
             self.db.open()
         self.completer_model = QSqlQueryModel(self)
-        self.completer_model.setQuery("SELECT nombre_completo FROM clientes", self.db)
+        self.completer_model.setQuery("SELECT name FROM clients", self.db)
         completer = QCompleter(self.completer_model, self)
         completer.setCompletionColumn(0)
         completer.setCaseSensitivity(Qt.CaseInsensitive)
@@ -119,6 +119,10 @@ class PagosViewer(QWidget):
         self.payment_window = PaymentWindow()
         self.payment_window.payment_added.connect(self.on_payment_added)
         self.payment_window.show()
+
+    def open_status(self):
+        self.status_window = ClientStatusViewer()
+        self.status_window.show()
 
     def on_payment_added(self):
         self.load_filters()
@@ -159,7 +163,7 @@ class PagosViewer(QWidget):
 
         # Get client_id before deleting
         q = QSqlQuery(self.db)
-        q.prepare("SELECT cliente_id FROM pagos WHERE id = ?")
+        q.prepare("SELECT client_id FROM payments WHERE id = ?")
         q.addBindValue(payment_id)
         if not q.exec() or not q.next():
             QMessageBox.warning(self, "Error", "No se encontró el pago.")
@@ -168,7 +172,7 @@ class PagosViewer(QWidget):
 
         # Delete the payment
         q2 = QSqlQuery(self.db)
-        q2.prepare("DELETE FROM pagos WHERE id = ?")
+        q2.prepare("DELETE FROM payments WHERE id = ?")
         q2.addBindValue(payment_id)
         if not q2.exec():
             QMessageBox.critical(self, "Error", "No se pudo borrar el pago.")
@@ -176,7 +180,7 @@ class PagosViewer(QWidget):
 
         # Find the latest payment for the client
         q3 = QSqlQuery(self.db)
-        q3.prepare("SELECT id FROM pagos WHERE cliente_id = ? ORDER BY fecha_pago DESC, id DESC LIMIT 1")
+        q3.prepare("SELECT id FROM payments WHERE client_id = ? ORDER BY year DESC, month DESC, id DESC LIMIT 1")
         q3.addBindValue(client_id)
         if not q3.exec():
             QMessageBox.warning(self, "Error", "No se pudo buscar el último pago.")
@@ -185,7 +189,7 @@ class PagosViewer(QWidget):
             ultimo_pago_id = q3.value(0)
             # Update clientes.ultimo_pago_id
             q4 = QSqlQuery(self.db)
-            q4.prepare("UPDATE clientes SET ultimo_pago_id = ? WHERE id = ?")
+            q4.prepare("UPDATE clients SET last_payment_id = ? WHERE id = ?")
             q4.addBindValue(ultimo_pago_id)
             q4.addBindValue(client_id)
             if not q4.exec():
@@ -193,7 +197,7 @@ class PagosViewer(QWidget):
         else:
             # No more payments, delete client
             q5 = QSqlQuery(self.db)
-            q5.prepare("DELETE FROM clientes WHERE id = ?")
+            q5.prepare("DELETE FROM clients WHERE id = ?")
             q5.addBindValue(client_id)
             if not q5.exec():
                 QMessageBox.warning(self, "Error", "No se pudo borrar el cliente.")
@@ -210,53 +214,49 @@ class PagosViewer(QWidget):
         # If not, you need to adjust the query in update_table to include p.id
         return model.data(model.index(row, 0))
 
-    def open_status(self):
-        self.status_window = ClientStatusViewer()
-        self.status_window.show()
-
     def load_filters(self):
         self.year_combo.blockSignals(True)
         self.year_combo.clear()
         current_year = datetime.datetime.now().year
         query = QSqlQueryModel()
-        query.setQuery("SELECT DISTINCT anio_pagado FROM pagos ORDER BY anio_pagado DESC", self.db)
+        query.setQuery("SELECT DISTINCT year FROM payments ORDER BY year DESC", self.db)
         default_index = 0
         for i in range(query.rowCount()):
-            anio = query.record(i).value("anio_pagado")
-            self.year_combo.addItem(str(anio), anio)
-            if anio == current_year:
+            year = query.record(i).value("year")
+            self.year_combo.addItem(str(year), year)
+            if year == current_year:
                 default_index = i
         self.year_combo.setCurrentIndex(default_index)
         self.year_combo.blockSignals(False)
 
     def update_table(self):
-        nombre = self.search_input.text()
-        mes = self.month_combo.currentData()
-        anio = self.year_combo.currentData()
+        name = self.search_input.text()
+        month = self.month_combo.currentData()
+        year = self.year_combo.currentData()
 
         sql = """
               SELECT p.id              AS PagoID,
-                     c.nombre_completo AS Cliente,
-                     p.monto           AS Monto,
-                     p.fecha_pago      AS Fecha,
-                     p.descripcion     AS Descripcion
-              FROM pagos p
-                       JOIN clientes c ON p.cliente_id = c.id
+                     c.name AS Cliente,
+                     p.amount           AS Monto,
+                     p.date      AS Fecha,
+                     p.description     AS Descripcion
+              FROM payments p
+                       JOIN clients c ON p.client_id = c.id
               WHERE 1 = 1 \
               """
         params = []
 
-        if nombre:
-            sql += " AND c.nombre_completo LIKE ?"
-            params.append(f"%{nombre}%")
-        if mes:
-            sql += " AND p.mes_pagado = ?"
-            params.append(mes)
-        if anio:
-            sql += " AND p.anio_pagado = ?"
-            params.append(anio)
+        if name:
+            sql += " AND c.name LIKE ?"
+            params.append(f"%{name}%")
+        if month:
+            sql += " AND p.month = ?"
+            params.append(month)
+        if year:
+            sql += " AND p.year = ?"
+            params.append(year)
 
-        sql += " ORDER BY c.nombre_completo ASC"
+        sql += " ORDER BY c.name ASC"
 
         query = QSqlQueryModel(self)
         q = QSqlQuery(self.db)

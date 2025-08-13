@@ -10,17 +10,17 @@ class StatusColorModel(QSqlQueryModel):
     def data(self, index, role=Qt.DisplayRole):
         if role == Qt.BackgroundRole and index.column() in (0, 1, 2):
             # Get month and year from the row
-            mes = self.index(index.row(), 1).data()
-            anio = self.index(index.row(), 2).data()
-            if mes != '-' and anio != '-':
+            month = self.index(index.row(), 1).data()
+            year = self.index(index.row(), 2).data()
+            if month != '-' and year != '-':
                 try:
-                    mes = int(mes)
-                    anio = int(anio)
+                    month = int(month)
+                    year = int(year)
                     now = datetime.datetime.now()
                     current_month = now.month
                     current_year = now.year
                     # Calculate how many months ago was the last payment
-                    months_ago = (current_year - anio) * 12 + (current_month - mes)
+                    months_ago = (current_year - year) * 12 + (current_month - month)
                     if months_ago == 0:
                         return None  # No color, paid this month
                     elif months_ago == 1:
@@ -67,7 +67,7 @@ class ClientStatusViewer(QWidget):
         if not self.db.isOpen():
             self.db.open()
         self.completer_model = QSqlQueryModel(self)
-        self.completer_model.setQuery("SELECT nombre_completo FROM clientes", self.db)
+        self.completer_model.setQuery("SELECT name FROM clients", self.db)
         completer = QCompleter(self.completer_model, self)
         completer.setCompletionColumn(0)
         completer.setCaseSensitivity(Qt.CaseInsensitive)
@@ -75,19 +75,19 @@ class ClientStatusViewer(QWidget):
         self.search_input.setCompleter(completer)
 
     def update_table(self):
-        nombre = self.search_input.text()
+        name = self.search_input.text()
         sql = """
-        SELECT c.nombre_completo AS Cliente,
-               COALESCE(p.mes_pagado, '-') AS 'Último Mes',
-               COALESCE(p.anio_pagado, '-') AS 'Último Año'
-        FROM clientes c
-        LEFT JOIN pagos p ON c.ultimo_pago_id = p.id
+        SELECT c.name AS Cliente,
+               COALESCE(p.month, '-') AS 'Último Mes',
+               COALESCE(p.year, '-') AS 'Último Año'
+        FROM clients c
+        LEFT JOIN payments p ON c.last_payment_id = p.id
         WHERE 1=1
         """
         params = []
-        if nombre:
-            sql += " AND c.nombre_completo LIKE ?"
-            params.append(f"%{nombre}%")
+        if name:
+            sql += " AND c.name LIKE ?"
+            params.append(f"%{name}%")
 
         model = StatusColorModel(self)
         q = QSqlQuery(self.db)

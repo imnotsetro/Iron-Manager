@@ -21,34 +21,34 @@ class PaymentEditWindow(QWidget):
         layout = QVBoxLayout(self)
         form_layout = QFormLayout()
 
-        self.nombre_input = QLineEdit()
-        self.nombre_input.setReadOnly(True)  # No editing client name
+        self.name_input = QLineEdit()
+        self.name_input.setReadOnly(True)  # No editing client name
 
-        self.monto_input = QLineEdit()
+        self.amount_input = QLineEdit()
         validator = QDoubleValidator(0.00, 1e9, 2, self)
         validator.setNotation(QDoubleValidator.StandardNotation)
-        self.monto_input.setValidator(validator)
+        self.amount_input.setValidator(validator)
 
         self.month_combo = QComboBox()
         spanish_months = [
             "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
             "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"
         ]
-        for i, mes in enumerate(spanish_months, start=1):
-            self.month_combo.addItem(mes, i)
+        for i, month in enumerate(spanish_months, start=1):
+            self.month_combo.addItem(month, i)
 
         self.year_combo = QComboBox()
         current_year = datetime.datetime.now().year
         for y in range(current_year - 5, current_year + 5):
             self.year_combo.addItem(str(y), y)
 
-        self.descripcion_input = QLineEdit()
+        self.description_input = QLineEdit()
 
-        form_layout.addRow("Nombre del cliente:", self.nombre_input)
-        form_layout.addRow("Monto a pagar:", self.monto_input)
+        form_layout.addRow("Nombre del cliente:", self.name_input)
+        form_layout.addRow("Monto a pagar:", self.amount_input)
         form_layout.addRow("Mes a pagar:", self.month_combo)
         form_layout.addRow("Año a pagar:", self.year_combo)
-        form_layout.addRow("Descripción:", self.descripcion_input)
+        form_layout.addRow("Descripción:", self.description_input)
 
         self.submit_btn = QPushButton("Guardar Cambios")
         self.submit_btn.clicked.connect(self.guardar_cambios)
@@ -59,22 +59,22 @@ class PaymentEditWindow(QWidget):
     def load_payment(self):
         q = QSqlQuery(self.db)
         q.prepare("""
-                  SELECT c.nombre_completo, p.monto, p.mes_pagado, p.anio_pagado, p.cliente_id, p.descripcion
-                  FROM pagos p
-                           JOIN clientes c ON p.cliente_id = c.id
+                  SELECT c.name, p.amount, p.month, p.year, p.client_id, p.description
+                  FROM payments p
+                           JOIN clients c ON p.client_id = c.id
                   WHERE p.id = ?
           """)
         q.addBindValue(self.payment_id)
         q.exec()
         if q.next():
-            self.nombre_input.setText(q.value(0))
-            self.monto_input.setText(str(q.value(1)))
-            mes = q.value(2)
-            anio = q.value(3)
-            self.cliente_id = q.value(4)
-            self.month_combo.setCurrentIndex(mes - 1)
-            idx = self.year_combo.findData(anio)
-            self.descripcion_input.setText(q.value(5) or "")
+            self.name_input.setText(q.value(0))
+            self.amount_input.setText(str(q.value(1)))
+            month = q.value(2)
+            year = q.value(3)
+            self.client_id = q.value(4)
+            self.month_combo.setCurrentIndex(month - 1)
+            idx = self.year_combo.findData(year)
+            self.description_input.setText(q.value(5) or "")
             if idx >= 0:
                 self.year_combo.setCurrentIndex(idx)
         else:
@@ -82,16 +82,16 @@ class PaymentEditWindow(QWidget):
             self.close()
 
     def guardar_cambios(self):
-        monto_text = self.monto_input.text().strip()
-        mes = self.month_combo.currentData()
-        anio = self.year_combo.currentData()
+        amount_text = self.amount_input.text().strip()
+        month = self.month_combo.currentData()
+        year = self.year_combo.currentData()
 
-        if not monto_text:
+        if not amount_text:
             QMessageBox.warning(self, "Error", "Debe completar todos los campos")
             return
 
         try:
-            monto = float(monto_text)
+            amount = float(amount_text)
         except ValueError:
             QMessageBox.warning(self, "Error", "Monto inválido. Ingrese un número válido.")
             return
@@ -99,32 +99,32 @@ class PaymentEditWindow(QWidget):
         # Check for duplicate payment for same month/year (excluding this payment)
         dup = QSqlQuery(self.db)
         dup.prepare("""
-            SELECT 1 FROM pagos 
-            WHERE cliente_id = ? AND mes_pagado = ? AND anio_pagado = ? AND id != ?
+            SELECT 1 FROM payments 
+            WHERE client_id = ? AND month = ? AND year = ? AND id != ?
         """)
-        dup.addBindValue(self.cliente_id)
-        dup.addBindValue(mes)
-        dup.addBindValue(anio)
+        dup.addBindValue(self.client_id)
+        dup.addBindValue(month)
+        dup.addBindValue(year)
         dup.addBindValue(self.payment_id)
         dup.exec()
         if dup.next():
-            QMessageBox.warning(self, "Advertencia", "El cliente ya pagó ese mes.")
+            QMessageBox.warning(self, "Advertencia", "El cliente ya pagó ese month.")
             return
 
         upd = QSqlQuery(self.db)
-        descripcion = self.descripcion_input.text().strip()
+        description= self.description_input.text().strip()
         upd.prepare("""
-                    UPDATE pagos
-                    SET monto       = ?,
-                        mes_pagado  = ?,
-                        anio_pagado = ?,
-                        descripcion = ?
+                    UPDATE payments
+                    SET amount       = ?,
+                        month  = ?,
+                        year = ?,
+                        description = ?
                     WHERE id = ?
                     """)
-        upd.addBindValue(monto)
-        upd.addBindValue(mes)
-        upd.addBindValue(anio)
-        upd.addBindValue(descripcion)
+        upd.addBindValue(amount)
+        upd.addBindValue(month)
+        upd.addBindValue(year)
+        upd.addBindValue(description)
         upd.addBindValue(self.payment_id)
         if not upd.exec():
             QMessageBox.critical(self, "Error", "No se pudo actualizar el pago")
@@ -133,17 +133,17 @@ class PaymentEditWindow(QWidget):
         # Update ultimo_pago_id if this is the latest payment
         q = QSqlQuery(self.db)
         q.prepare("""
-            SELECT id FROM pagos 
-            WHERE cliente_id = ? 
-            ORDER BY fecha_pago DESC, id DESC LIMIT 1
+            SELECT id FROM payments 
+            WHERE client_id = ? 
+            ORDER BY date DESC, id DESC LIMIT 1
         """)
-        q.addBindValue(self.cliente_id)
+        q.addBindValue(self.client_id)
         q.exec()
         if q.next() and q.value(0) == self.payment_id:
             upd2 = QSqlQuery(self.db)
-            upd2.prepare("UPDATE clientes SET ultimo_pago_id = ? WHERE id = ?")
+            upd2.prepare("UPDATE clients SET last_payment_id = ? WHERE id = ?")
             upd2.addBindValue(self.payment_id)
-            upd2.addBindValue(self.cliente_id)
+            upd2.addBindValue(self.client_id)
             upd2.exec()
 
         QMessageBox.information(self, "Éxito", "Pago actualizado correctamente")

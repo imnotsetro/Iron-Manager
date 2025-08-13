@@ -24,7 +24,7 @@ class PaymentWindow(QWidget):
         # --- Autocomplete setup ---
         names = []
         query = QSqlQuery(self.db)
-        query.exec("SELECT nombre_completo FROM clientes")
+        query.exec("SELECT name FROM clients")
         while query.next():
             names.append(query.value(0))
         completer = QCompleter(names, self)
@@ -36,11 +36,11 @@ class PaymentWindow(QWidget):
         self.nombre_input.returnPressed.connect(self.registrar_pago)
 
         self.monto_input = QLineEdit()
-        # Solo números con hasta 2 decimales
+        # limit 2 to float
         validator = QDoubleValidator(0.00, 1e9, 2, self)
         validator.setNotation(QDoubleValidator.StandardNotation)
         self.monto_input.setValidator(validator)
-        # Conectar tecla Enter para registrar
+        # Enter to continue
         self.monto_input.returnPressed.connect(self.registrar_pago)
 
         self.month_combo = QComboBox()
@@ -92,7 +92,7 @@ class PaymentWindow(QWidget):
         descripcion = self.descripcion_input.text().strip()
 
         query = QSqlQuery(self.db)
-        query.prepare("SELECT id, ultimo_pago_id FROM clientes WHERE nombre_completo = ?")
+        query.prepare("SELECT id, last_payment_id FROM clients WHERE name = ?")
         query.addBindValue(nombre)
         query.exec()
         if query.next():
@@ -100,7 +100,7 @@ class PaymentWindow(QWidget):
             ultimo_pago_id = query.value(1)
         else:
             insert_cli = QSqlQuery(self.db)
-            insert_cli.prepare("INSERT INTO clientes (nombre_completo, ultimo_pago_id) VALUES (?, NULL)")
+            insert_cli.prepare("INSERT INTO clients (name, last_payment_id) VALUES (?, NULL)")
             insert_cli.addBindValue(nombre)
             if not insert_cli.exec():
                 QMessageBox.critical(self, "Error", "No se pudo crear el cliente")
@@ -110,7 +110,7 @@ class PaymentWindow(QWidget):
 
         # Verificar duplicado
         dup = QSqlQuery(self.db)
-        dup.prepare("SELECT 1 FROM pagos WHERE cliente_id = ? AND mes_pagado = ? AND anio_pagado = ?")
+        dup.prepare("SELECT 1 FROM payments WHERE client_id = ? AND month = ? AND year = ?")
         dup.addBindValue(cliente_id)
         dup.addBindValue(mes)
         dup.addBindValue(anio)
@@ -122,7 +122,7 @@ class PaymentWindow(QWidget):
         update_last_payment = False
         if ultimo_pago_id is not None:
             last = QSqlQuery(self.db)
-            last.prepare("SELECT mes_pagado, anio_pagado FROM pagos WHERE id = ?")
+            last.prepare("SELECT month, year FROM payments WHERE id = ?")
             last.addBindValue(ultimo_pago_id)
             last.exec()
             if last.next():
@@ -153,7 +153,7 @@ class PaymentWindow(QWidget):
         hoy = datetime.date.today().isoformat()
         ins = QSqlQuery(self.db)
         ins.prepare(
-            "INSERT INTO pagos (cliente_id, fecha_pago, monto, mes_pagado, anio_pagado, descripcion)"
+            "INSERT INTO payments (client_id, date, amount, month, year, description)"
             " VALUES (?, ?, ?, ?, ?, ?)"
         )
         ins.addBindValue(cliente_id)
@@ -170,7 +170,7 @@ class PaymentWindow(QWidget):
         if update_last_payment:
             upd = QSqlQuery(self.db)
             upd.prepare(
-                "UPDATE clientes SET ultimo_pago_id = ? WHERE id = ?"
+                "UPDATE clients SET last_payment_id = ? WHERE id = ?"
             )
             upd.addBindValue(new_pago_id)
             upd.addBindValue(cliente_id)

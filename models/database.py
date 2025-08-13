@@ -1,6 +1,6 @@
 from PySide6.QtSql import QSqlDatabase, QSqlQuery
 
-def create_connection(db_filename="gym.db"):
+def create_connection(db_filename="data.db"):
     db = QSqlDatabase.addDatabase("QSQLITE")
     db.setDatabaseName(db_filename)
     if not db.open():
@@ -10,25 +10,25 @@ def create_connection(db_filename="gym.db"):
 def initialize_db(db):
     query = QSqlQuery(db)
     query.exec_("""
-        CREATE TABLE IF NOT EXISTS clientes (
+        CREATE TABLE IF NOT EXISTS clients (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
-            nombre_completo TEXT NOT NULL UNIQUE,
-            ultimo_pago_id INTEGER,
-            FOREIGN KEY(ultimo_pago_id) REFERENCES pagos(id)
+            name TEXT NOT NULL UNIQUE,
+            last_payment_id INTEGER,
+            FOREIGN KEY(last_payment_id) REFERENCES payment(id)
         );
     """)
     # Pagos
     query.exec_("""
-        CREATE TABLE IF NOT EXISTS pagos (
+        CREATE TABLE IF NOT EXISTS payments (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
-            cliente_id INTEGER NOT NULL,
-            fecha_pago TEXT NOT NULL,
-            monto REAL NOT NULL,
-            mes_pagado INTEGER NOT NULL,
-            anio_pagado INTEGER NOT NULL,
-            descripcion TEXT,
-            FOREIGN KEY(cliente_id) REFERENCES clientes(id),
-            UNIQUE(cliente_id, mes_pagado, anio_pagado)
+            client_id INTEGER NOT NULL,
+            date TEXT NOT NULL,
+            amount REAL NOT NULL,
+            month INTEGER NOT NULL,
+            year INTEGER NOT NULL,
+            description TEXT,
+            FOREIGN KEY(client_id) REFERENCES clients(id),
+            UNIQUE(client_id, month, year)
         );
     """)
 
