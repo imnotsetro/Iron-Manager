@@ -1,3 +1,4 @@
+# statistics.py
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QLabel, QComboBox, QTableView
 from PySide6.QtSql import QSqlQueryModel, QSqlQuery, QSqlDatabase
 from PySide6.QtCore import Qt
@@ -5,24 +6,29 @@ from PySide6.QtCore import Qt
 class MonthlyStatsModel(QSqlQueryModel):
     def __init__(self, year, parent=None):
         super().__init__(parent)
-        self.year = year
+        self.year = str(year) if year is not None else None
         self.refresh()
 
     def refresh(self):
         sql = """
         SELECT
-            month AS Mes,
-            SUM(amount) AS 'Total Recaudado'
+            CAST(strftime('%m', date) AS INTEGER) AS Mes,
+            SUM(amount) AS "Total Recaudado"
         FROM payments
-        WHERE year = ?
-        GROUP BY month
-        ORDER BY month
+        WHERE date IS NOT NULL
+          AND strftime('%Y', date) = ?
+        GROUP BY CAST(strftime('%m', date) AS INTEGER)
+        ORDER BY Mes;
         """
         db = QSqlDatabase.database()
         q = QSqlQuery(db)
-        q.prepare(sql)
+        prepared = q.prepare(sql)
+        if not prepared:
+            print("DEBUG: prepare failed (MonthlyStatsModel):", q.lastError().text())
         q.addBindValue(self.year)
-        q.exec()
+        ok = q.exec()
+        if not ok:
+            print("DEBUG: exec failed (MonthlyStatsModel):", q.lastError().text())
         self.setQuery(q)
 
 class StatisticsWindow(QWidget):
@@ -47,6 +53,8 @@ class StatisticsWindow(QWidget):
             return
         self.model = MonthlyStatsModel(year, self)
         self.table.setModel(self.model)
+        self.model.setHeaderData(0, Qt.Horizontal, "Mes")
+        self.model.setHeaderData(1, Qt.Horizontal, "Total Recaudado")
 
     def setup_ui(self):
         layout = QVBoxLayout(self)
@@ -64,14 +72,20 @@ class StatisticsWindow(QWidget):
         layout.addWidget(self.table)
 
     def load_years(self):
-        sql = "SELECT DISTINCT year FROM payments ORDER BY year DESC"
+        """
+        Obtiene años existentes a partir de payment_date (strftime '%Y').
+        """
+        self.year_selector.clear()
         q = QSqlQuery(self.db)
-        q.exec(sql)
+        sql = "SELECT DISTINCT strftime('%Y', date) AS year FROM payments WHERE date IS NOT NULL ORDER BY year DESC;"
+        if not q.exec(sql):
+            print("DEBUG: load_years exec failed:", q.lastError().text())
+            return
         years = []
         while q.next():
-            year = q.value(0)
-            if year:
-                years.append(str(year))
+            y = q.value(0)
+            if y:
+                years.append(str(y))
         self.year_selector.addItems(years)
 
     def refresh(self):

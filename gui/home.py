@@ -9,7 +9,7 @@ from PySide6.QtWidgets import QStackedLayout
 import datetime
 from gui.payment import PaymentWindow
 from gui.statistics import StatisticsWindow
-from gui.status import ClientStatusViewer
+from gui.status_clients import ClientStatusViewer
 from gui.payment_edit import PaymentEditWindow
 
 class PagosViewer(QWidget):
@@ -29,6 +29,14 @@ class PagosViewer(QWidget):
 
         self.search_input = QLineEdit()
         self.search_input.setPlaceholderText("Buscar cliente...")
+        self.search_input.setStyleSheet("""
+            QLineEdit {
+                color: black;
+            }
+            QLineEdit::placeholder {
+                color: black;
+            }
+        """)
         self.search_input.textChanged.connect(self.update_table)
 
         self.month_combo = QComboBox()
@@ -66,7 +74,6 @@ class PagosViewer(QWidget):
 
         self.statistics_window = None
 
-        filter_layout.addWidget(QLabel("Cliente"))
         filter_layout.addWidget(self.search_input)
         filter_layout.addWidget(QLabel("Mes"))
         filter_layout.addWidget(self.month_combo)
@@ -238,7 +245,7 @@ class PagosViewer(QWidget):
               SELECT p.id              AS PagoID,
                      c.name AS Cliente,
                      p.amount           AS Monto,
-                     p.date      AS Fecha,
+                     p.date      AS "Fecha de Pago",
                      p.description     AS Descripcion
               FROM payments p
                        JOIN clients c ON p.client_id = c.id

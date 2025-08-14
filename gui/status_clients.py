@@ -1,5 +1,5 @@
 from PySide6.QtWidgets import (
-    QWidget, QVBoxLayout, QHBoxLayout, QLineEdit, QLabel, QTableView, QCompleter
+    QWidget, QVBoxLayout, QHBoxLayout, QLineEdit, QLabel, QTableView, QCompleter, QHeaderView
 )
 from PySide6.QtSql import QSqlQueryModel, QSqlQuery, QSqlDatabase
 from PySide6.QtCore import Qt
@@ -38,7 +38,7 @@ class ClientStatusViewer(QWidget):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("Estado de Pagos de Clientes")
-        self.resize(700, 500)
+        self.resize(662, 500)
         self.db = QSqlDatabase.database()
         self.setup_ui()
         self.update_table()
@@ -50,6 +50,14 @@ class ClientStatusViewer(QWidget):
         filter_layout.addWidget(QLabel("Buscar cliente:"))
         self.search_input = QLineEdit()
         self.search_input.setPlaceholderText("Buscar cliente...")
+        self.search_input.setStyleSheet("""
+            QLineEdit {
+                color: black;
+            }
+            QLineEdit::placeholder {
+                color: black;
+            }
+        """)
         self.search_input.textChanged.connect(self.update_table)
         filter_layout.addWidget(self.search_input)
         layout.addLayout(filter_layout)
@@ -77,13 +85,13 @@ class ClientStatusViewer(QWidget):
     def update_table(self):
         name = self.search_input.text()
         sql = """
-        SELECT c.name AS Cliente,
-               COALESCE(p.month, '-') AS 'Último Mes',
-               COALESCE(p.year, '-') AS 'Último Año'
-        FROM clients c
-        LEFT JOIN payments p ON c.last_payment_id = p.id
-        WHERE 1=1
-        """
+              SELECT c.name                 AS Cliente,
+                     COALESCE(p.month, '-') AS 'Último Mes',
+                     COALESCE(p.year, '-')  AS 'Último Año'
+              FROM clients c
+                       LEFT JOIN payments p ON c.last_payment_id = p.id
+              WHERE 1 = 1 \
+              """
         params = []
         if name:
             sql += " AND c.name LIKE ?"
@@ -97,3 +105,13 @@ class ClientStatusViewer(QWidget):
         q.exec()
         model.setQuery(q)
         self.table.setModel(model)
+
+        # Table Header Configuration
+        header = self.table.horizontalHeader()
+        header.setStretchLastSection(False)
+        col_count = model.columnCount()
+        if col_count > 0:
+            ancho = int(self.table.viewport().width() / col_count)
+            for col in range(col_count):
+                header.setSectionResizeMode(col, QHeaderView.Fixed)
+                self.table.setColumnWidth(col, ancho)

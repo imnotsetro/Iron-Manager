@@ -130,7 +130,7 @@ class PaymentEditWindow(QWidget):
             QMessageBox.critical(self, "Error", "No se pudo actualizar el pago")
             return
 
-        # Update ultimo_pago_id if this is the latest payment
+        # Update last_payment_id if this is the latest payment
         q = QSqlQuery(self.db)
         q.prepare("""
             SELECT id FROM payments 
