@@ -4,13 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="7d0a0f52-7c6a-49b9-98ea-a43d3ab0c178" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/data_source_mapping.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/data_source_mapping.xml" afterDir="false" />
+    <list default="true" id="7d0a0f52-7c6a-49b9-98ea-a43d3ab0c178" name="Changes" comment="dasjdsajdlkajssnjdasnjdasjkdnjasndjasjkdlk">
+      <change afterPath="$PROJECT_DIR$/models/bolu.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/gui/home.py" beforeDir="false" afterPath="$PROJECT_DIR$/gui/home.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/gui/payment_edit.py" beforeDir="false" afterPath="$PROJECT_DIR$/gui/payment_edit.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/gui/statistics.py" beforeDir="false" afterPath="$PROJECT_DIR$/gui/statistics.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/gui/status.py" beforeDir="false" afterPath="$PROJECT_DIR$/gui/status_clients.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -36,7 +32,7 @@
   <component name="GithubPullRequestsUISettings">{
   &quot;selectedUrlAndAccountId&quot;: {
     &quot;url&quot;: &quot;https://github.com/imnotsetro/Iron-Manager.git&quot;,
-    &quot;accountId&quot;: &quot;6bb68cf6-c7e5-453c-a355-0541c635653c&quot;
+    &quot;accountId&quot;: &quot;2c575f58-36e2-4ead-9f9a-d069e7531f9e&quot;
   }
 }</component>
   <component name="ProjectColorInfo">{
@@ -252,6 +248,8 @@
       <workItem from="1755108825539" duration="122000" />
       <workItem from="1755108950917" duration="1894000" />
       <workItem from="1755194154744" duration="1252000" />
+      <workItem from="1756216288240" duration="187000" />
+      <workItem from="1756219619922" duration="94000" />
     </task>
     <servers />
   </component>
