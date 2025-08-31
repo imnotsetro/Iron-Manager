@@ -4,13 +4,12 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="7d0a0f52-7c6a-49b9-98ea-a43d3ab0c178" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/data_source_mapping.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/data_source_mapping.xml" afterDir="false" />
+    <list default="true" id="7d0a0f52-7c6a-49b9-98ea-a43d3ab0c178" name="Changes" comment="Updated Interface">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/gui/home.py" beforeDir="false" afterPath="$PROJECT_DIR$/gui/home.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/gui/payment.py" beforeDir="false" afterPath="$PROJECT_DIR$/gui/payment.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/gui/payment_edit.py" beforeDir="false" afterPath="$PROJECT_DIR$/gui/payment_edit.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/gui/statistics.py" beforeDir="false" afterPath="$PROJECT_DIR$/gui/statistics.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/gui/status.py" beforeDir="false" afterPath="$PROJECT_DIR$/gui/status_clients.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/gui/status_clients.py" beforeDir="false" afterPath="$PROJECT_DIR$/gui/status_clients.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -251,15 +250,34 @@
       <workItem from="1755100087290" duration="5106000" />
       <workItem from="1755108825539" duration="122000" />
       <workItem from="1755108950917" duration="1894000" />
-      <workItem from="1755194154744" duration="1252000" />
+      <workItem from="1755194154744" duration="1458000" />
+      <workItem from="1755263436908" duration="52000" />
+      <workItem from="1755278612863" duration="1194000" />
+      <workItem from="1755529252230" duration="39000" />
+      <workItem from="1755956300320" duration="204000" />
+      <workItem from="1756573817376" duration="429000" />
+      <workItem from="1756666855306" duration="554000" />
     </task>
+    <task id="LOCAL-00001" summary="Updated Interface">
+      <option name="closed" value="true" />
+      <created>1755195553410</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1755195553410</updated>
+    </task>
+    <option name="localTasksCounter" value="2" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
   </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="Updated Interface" />
+    <option name="LAST_COMMIT_MESSAGE" value="Updated Interface" />
+  </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
-    <SUITE FILE_PATH="coverage/Iron_Manager$main.coverage" NAME="main Coverage Results" MODIFIED="1755195289404" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/Iron_Manager$main.coverage" NAME="main Coverage Results" MODIFIED="1756667277065" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/IronManager$main.coverage" NAME="main Coverage Results" MODIFIED="1755023503175" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/IronManager$database.coverage" NAME="database Coverage Results" MODIFIED="1755022391639" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/models" />
     <SUITE FILE_PATH="coverage/IronManager$payment.coverage" NAME="payment Coverage Results" MODIFIED="1753554665170" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/gui" />

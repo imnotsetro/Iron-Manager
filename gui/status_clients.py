@@ -96,6 +96,7 @@ class ClientStatusViewer(QWidget):
         if name:
             sql += " AND c.name LIKE ?"
             params.append(f"%{name}%")
+        sql += " ORDER BY c.name;"
 
         model = StatusColorModel(self)
         q = QSqlQuery(self.db)

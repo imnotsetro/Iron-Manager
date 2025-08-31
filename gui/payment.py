@@ -33,7 +33,7 @@ class PaymentWindow(QWidget):
         # --------------------------
 
         # Enter to register payment
-        self.nombre_input.returnPressed.connect(self.registrar_pago)
+        self.nombre_input.returnPressed.connect(self.register_payment)
 
         self.monto_input = QLineEdit()
         # limit 2 to float
@@ -41,7 +41,7 @@ class PaymentWindow(QWidget):
         validator.setNotation(QDoubleValidator.StandardNotation)
         self.monto_input.setValidator(validator)
         # Enter to continue
-        self.monto_input.returnPressed.connect(self.registrar_pago)
+        self.monto_input.returnPressed.connect(self.register_payment)
 
         self.month_combo = QComboBox()
         spanish_months = [
@@ -67,12 +67,12 @@ class PaymentWindow(QWidget):
         form_layout.addRow("Descripción:", self.descripcion_input)
 
         self.submit_btn = QPushButton("Registrar Pago")
-        self.submit_btn.clicked.connect(self.registrar_pago)
+        self.submit_btn.clicked.connect(self.register_payment)
 
         layout.addLayout(form_layout)
         layout.addWidget(self.submit_btn)
 
-    def registrar_pago(self):
+    def register_payment(self):
         nombre = self.nombre_input.text().strip()
         monto_text = self.monto_input.text().strip()
         mes = self.month_combo.currentData()

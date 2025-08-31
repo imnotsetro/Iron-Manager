@@ -51,7 +51,7 @@ class PaymentEditWindow(QWidget):
         form_layout.addRow("Descripción:", self.description_input)
 
         self.submit_btn = QPushButton("Guardar Cambios")
-        self.submit_btn.clicked.connect(self.guardar_cambios)
+        self.submit_btn.clicked.connect(self.save_changes)
 
         layout.addLayout(form_layout)
         layout.addWidget(self.submit_btn)
@@ -81,7 +81,7 @@ class PaymentEditWindow(QWidget):
             QMessageBox.critical(self, "Error", "No se pudo cargar el pago.")
             self.close()
 
-    def guardar_cambios(self):
+    def save_changes(self):
         amount_text = self.amount_input.text().strip()
         month = self.month_combo.currentData()
         year = self.year_combo.currentData()

@@ -105,15 +105,39 @@ class PagosViewer(QWidget):
         self.setup_autocomplete()
 
     def setup_autocomplete(self):
+        # Asegura DB abierta
         if not self.db.isOpen():
             self.db.open()
+
+        # Modelo de consulta para completado
         self.completer_model = QSqlQueryModel(self)
         self.completer_model.setQuery("SELECT name FROM clients", self.db)
-        completer = QCompleter(self.completer_model, self)
-        completer.setCompletionColumn(0)
-        completer.setCaseSensitivity(Qt.CaseInsensitive)
-        completer.setFilterMode(Qt.MatchContains)
-        self.search_input.setCompleter(completer)
+
+        # Completer
+        self.completer = QCompleter(self.completer_model, self)
+        self.completer.setCompletionColumn(0)
+        self.completer.setCaseSensitivity(Qt.CaseInsensitive)
+        self.completer.setFilterMode(Qt.MatchContains)
+        self.completer.setCompletionMode(QCompleter.PopupCompletion)
+        self.completer.setMaxVisibleItems(10)
+
+        self.search_input.setCompleter(self.completer)
+
+    def refresh_autocomplete(self):
+        try:
+            if not hasattr(self, "completer_model") or self.completer_model is None:
+                # si no existía, configura completo
+                self.setup_autocomplete()
+                return
+
+            # Re-ejecutar la consulta
+            self.completer_model.setQuery("SELECT name FROM clients", self.db)
+
+            # Forzar actualización del completer (en algunas plataformas ayuda)
+            if hasattr(self, "completer") and self.completer is not None:
+                self.completer.setModel(self.completer_model)
+        except Exception as e:
+            print("DEBUG: refresh_autocomplete failed:", e)
 
     def open_statistics(self):
         if self.statistics_window is None:
@@ -132,8 +156,12 @@ class PagosViewer(QWidget):
         self.status_window.show()
 
     def on_payment_added(self):
+        # refrescar filtros y tabla
         self.load_filters()
         self.update_table()
+
+        # refrescar autocompletar para incluir clientes recién creados
+        self.refresh_autocomplete()
 
     def edit_payment(self):
         index = self.table.currentIndex()
