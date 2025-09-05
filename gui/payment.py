@@ -73,7 +73,7 @@ class PaymentWindow(QWidget):
         layout.addWidget(self.submit_btn)
 
     def register_payment(self):
-        nombre = self.nombre_input.text().strip()
+        nombre = self.nombre_input.text().strip().upper()
         monto_text = self.monto_input.text().strip()
         mes = self.month_combo.currentData()
         anio = self.year_combo.currentData()
